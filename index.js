@@ -2,32 +2,69 @@
 
 var argv = require('minimist')(process.argv.slice(2),
     {
-        "string": [ "rowstart", "rowrestart" ]
+        string: [ "rowstart", "rowrestart" ],
+        default: {
+            bx: 220,
+            by: 19,
+            miny: 40
+        }
     });
 
-const bord_bredde = 19;
-const bord_lengde = 220;
-const min_rest = 40;
 const series_label = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
+const bord_bredde = argv.by;
+const bord_lengde = argv.bx;
+const min_rest = argv.miny;
 const room_width = argv.rx;
 const room_height = argv.ry;
 const series_offset = argv.rowstart.split("/").map(x => parseInt(x))
-const series_restart = argv.rowrestart.split("/").map(x => parseInt(x))
 
 
-if (argv.showlabel) {
-    console.log("/showrowlabel true def");
-} else {
-    console.log("/showrowlabel false def");
+console.log("/boardwidth " + bord_bredde + " def");
+console.log("/boardlength " + bord_lengde + " def");
+
+console.log("/showrowlabel " + (argv.showlabel ? "true" : "false") + " def");
+console.log("/showlenstr " + (argv.showlen ? "true" : "false") + " def");
+
+function fraction_length_from(x) {
+    // start at x
+    var sum_len = x;
+    // add whole boards
+    sum_len += Math.floor((room_width - sum_len) / bord_lengde) * bord_lengde;
+    // return what is left
+    return room_width - sum_len;
+}
+var fraction_length = fraction_length_from(0);
+// console.log("fraction: " + fraction_length);
+
+// check end_piece constraint on initial offsets
+series_offset.forEach(x => {
+    var end_piece = fraction_length_from(x);
+    if (end_piece < min_rest) {
+        console.error("WARNING: start length " + x + " gives too short end piece: " + end_piece);
+        process.exit(0);
+    }
+})
+
+function fraction_iter_max_len_with_valid_endpiece(startx) {
+    // start searching at startx
+    var candidate = startx;
+    // in steps equal to the global fraction length
+
+    // go up to maximum bord_lengde
+    while (candidate < bord_lengde) {
+        candidate += fraction_length;
+    }
+    // go down if the end piece is too short
+    while (fraction_length_from(candidate) < min_rest) {
+        candidate -= fraction_length;
+    }
+    return candidate;
 }
 
-if (argv.showlen) {
-    console.log("/showlenstr true def");
-} else {
-    console.log("/showlenstr false def");
-}
-
+const series_restart = series_offset.map(x => fraction_iter_max_len_with_valid_endpiece(x))
+// console.log("rowstart: " + series_offset);
+// console.log("restart : " + series_restart);
 
 var row = 1;
 var series_idx = 0;
