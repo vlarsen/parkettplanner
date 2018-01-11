@@ -1,0 +1,73 @@
+%!PS
+
+/Times-Roman findfont
+24 scalefont
+setfont
+100 700 moveto
+(Title) show
+
+/Times-Roman findfont
+12 scalefont
+setfont
+
+/centershow {
+  dup stringwidth 2 div exch 2 div exch rmoveto show
+} def
+
+/textheight 6 def
+/rowtextoffsetx -35 def
+
+/board {
+  /l exch def
+  gsave
+  translate 
+  newpath
+  0 0 moveto
+  l 0 rlineto
+  0 boardwidth neg rlineto
+  l neg 0 rlineto
+  closepath
+  0.5 setlinewidth
+  stroke
+  
+  showlenstr
+  {
+    /lenstr l 5 string cvs def
+      l 2 div lenstr stringwidth pop 2 div sub
+      boardwidth 2 div textheight add neg
+      moveto lenstr show
+  } if
+
+  grestore
+} def
+
+/rownum 0 def
+
+% Input: [ offset offset offset ] label -> 
+/row {
+  /rownum rownum 1 add def
+  0 boardwidth neg translate
+
+  showrowlabel
+    {
+      rowtextoffsetx boardwidth 2 div textheight 2 div add neg moveto
+      rownum 3 string cvs
+      show ( ) show show
+    }
+    {
+      pop
+    }
+  ifelse
+
+  /offset 0 def
+  {
+    /currlen exch def
+    offset 0 currlen board
+    currlen offset add /offset exch def
+  } forall
+} def
+
+gsave
+% init position
+100 650 translate
+
