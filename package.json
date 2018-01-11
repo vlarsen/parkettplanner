@@ -10,6 +10,6 @@
   "author": "Vidar Larsen <vi_larsen@me.com>",
   "license": "ISC",
   "dependencies": {
-    "minimist": "^1.2.0"
+    "yargs-parser": "^8.1.0"
   }
 }

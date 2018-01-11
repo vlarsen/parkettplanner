@@ -1,13 +1,26 @@
 #!/usr/bin/env node
 
-var argv = require('minimist')(process.argv.slice(2),
+var argv = require('yargs-parser')(process.argv.slice(2),
     {
-        string: [ "startlen" ],
+        alias: {
+            startlen: ['s'],
+            rx: ['x'],
+            ry: ['y'],
+            showlen: ['l'],
+            showlabel: ['t']
+        },
+        coerce: {
+            startlen: function(lenstr) {
+                return lenstr.split("/").map(l => parseInt(l))
+            }
+        },
         default: {
             bx: 220,
             by: 19,
             minbx: 40,
-            minby: 5
+            minby: 5,
+            showlabel: false,
+            showlen: false
         }
     });
 
@@ -19,7 +32,7 @@ const min_rest_length = argv.minbx;
 const min_board_width = argv.minby;
 const room_width = argv.rx;
 const room_height = argv.ry;
-const series_lengths = argv.startlen.split("/").map(l => parseInt(l));
+const series_lengths = argv.startlen;
 
 console.log("/boardwidth " + board_width + " def");
 console.log("/boardlength " + board_length + " def");
